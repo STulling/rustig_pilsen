@@ -13,17 +13,17 @@ pub fn echo(input_device: &cpal::Device, output_device: &cpal::Device) -> Result
     let latency_samples = latency_frames as usize * config.channels as usize;
 
     // The buffer to share samples
-    let ring = RingBuffer::new(latency_samples * 2);
+    let ring = RingBuffer::<i16>::new(latency_samples * 2);
     let (mut producer, mut consumer) = ring.split();
 
     // Fill the samples with 0.0 equal to the length of the delay.
     for _ in 0..latency_samples {
         // The ring buffer has twice as much space as necessary to add latency here,
         // so this should never fail
-        producer.push(0.0).unwrap();
+        producer.push(0).unwrap();
     }
 
-    let input_data_fn = move |data: &[f32], _: &cpal::InputCallbackInfo| {
+    let input_data_fn = move |data: &[i16], _: &cpal::InputCallbackInfo| {
         let mut output_fell_behind = false;
         for &sample in data {
             if producer.push(sample).is_err() {
@@ -35,14 +35,14 @@ pub fn echo(input_device: &cpal::Device, output_device: &cpal::Device) -> Result
         }
     };
 
-    let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
+    let output_data_fn = move |data: &mut [i16], _: &cpal::OutputCallbackInfo| {
         let mut input_fell_behind = false;
         for sample in data {
             *sample = match consumer.pop() {
                 Some(s) => s,
                 None => {
                     input_fell_behind = true;
-                    0.0
+                    0
                 }
             };
         }
