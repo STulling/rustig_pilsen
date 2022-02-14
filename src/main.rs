@@ -6,14 +6,15 @@ mod logging;
 mod audio;
 use logging::log;
 use info::audio_info;
+use audio::utils;
 use audio::beep::beep;
 use audio::feedback;
 
 fn main() {
     audio_info::print_info();
     let host = cpal::default_host();
-    let input_device = host.default_input_device().unwrap();
-    let output_device = host.default_output_device().unwrap();
+    let input_device = utils::get_device("hw:CARD=Device,DEV=0");
+    let output_device = utils::get_device("hw:CARD=Device,DEV=0");
     log::warn(format!("Using Devices: \n  [IN] {}\n  [OUT] {}", input_device.name().unwrap(), output_device.name().unwrap()));
     //log::info("Playing Beep".to_string());
     //beep(&output_device);
