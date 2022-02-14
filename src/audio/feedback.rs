@@ -53,7 +53,7 @@ pub fn echo(input_device: &cpal::Device, output_device: &cpal::Device) -> Result
 
     // Build streams.
     log::debug(format!(
-        "Attempting to build both streams with f32 samples and `{:?}`.",
+        "Attempting to build both streams with i16 samples and `{:?}`.",
         config
     ));
     let input_stream = input_device.build_input_stream(&config, input_data_fn, err_fn)?;
