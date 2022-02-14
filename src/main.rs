@@ -18,5 +18,8 @@ fn main() {
     //log::info("Playing Beep".to_string());
     //beep(&output_device);
     log::info("Playing Feedback".to_string());
-    feedback::echo(&input_device, &output_device);
+    let success = feedback::echo(&input_device, &output_device);
+    if success.is_err() {
+        log::error(format!("Error: {:?}", success.err().unwrap()));
+    }
 }
