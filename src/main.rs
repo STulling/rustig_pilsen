@@ -18,13 +18,13 @@ use audio::{feedback, utils};
 const BLOCK_SIZE: u32 = 480;
 
 // This function only gets compiled if the target OS is linux
-//#[cfg(target_os = "linux")]
-//fn init_devices(host: &cpal::Host) -> (cpal::Device, cpal::Device) {
-//    return (host.default_input_device().unwrap(), utils::get_device("hw:CARD=Device,DEV=0"));
-//}
+#[cfg(target_os = "linux")]
+fn init_devices(host: &cpal::Host) -> (cpal::Device, cpal::Device) {
+    return (host.default_input_device().unwrap(), utils::get_device("hw:CARD=Device,DEV=0"));
+}
 
 // And this function only gets compiled if the target OS is *not* linux
-//#[cfg(target_os = "windows")]
+#[cfg(target_os = "windows")]
 fn init_devices(host: &cpal::Host) -> (cpal::Device, cpal::Device){
     let input_device = host.default_input_device().unwrap();
     let output_device = host.default_output_device().unwrap();
