@@ -1,4 +1,4 @@
-use cpal::traits::{DeviceTrait};
+use cpal::traits::{DeviceTrait, HostTrait};
 
 #[cfg(target_os = "linux")]
 pub fn get_device(name: &str) -> cpal::Device {
