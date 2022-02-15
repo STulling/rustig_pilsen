@@ -1,48 +1,39 @@
-use cpal::traits::{DeviceTrait, StreamTrait};
-use crate::logging::log;
+use std::sync::{mpsc, Arc};
+
+use cpal::{traits::{DeviceTrait, StreamTrait}, BufferSize};
+use crate::{logging::log, BLOCK_SIZE};
 extern crate ringbuf;
-use ringbuf::RingBuffer;
+use ringbuf::{RingBuffer, Producer};
 
-pub fn echo(input_device: &cpal::Device, output_device: &cpal::Device) -> Result<(), anyhow::Error> {
-    let latency = 50.0;
-    // We'll try and use the same configuration between streams to keep it simple.
-    let config: cpal::StreamConfig = input_device.default_input_config()?.into();
-
-    // Create a delay in case the input and output devices aren't synced.
+pub fn run<T>(input_device: &cpal::Device, output_device: &cpal::Device, latency: f32, tx: mpsc::Sender<Arc<Vec<f32>>>) -> Result<(), anyhow::Error>
+where
+    T: cpal::Sample + Send + 'static + std::marker::Sync,
+{   
+    let mut config: cpal::StreamConfig = input_device.default_input_config()?.into();
+    config.buffer_size = BufferSize::Fixed(BLOCK_SIZE);
     let latency_frames = (latency / 1_000.0) * config.sample_rate.0 as f32;
     let latency_samples = latency_frames as usize * config.channels as usize;
-
-    // The buffer to share samples
-    let ring = RingBuffer::<i16>::new(latency_samples * 2);
+    let ring = RingBuffer::<T>::new(latency_samples * 2);
     let (mut producer, mut consumer) = ring.split();
+
+    let zerofloat = 0.0 as f32;
+    let zero = T::from::<f32>(&zerofloat);
 
     // Fill the samples with 0.0 equal to the length of the delay.
     for _ in 0..latency_samples {
         // The ring buffer has twice as much space as necessary to add latency here,
         // so this should never fail
-        producer.push(0).unwrap();
+        let _ = producer.push(zero);
     }
 
-    let input_data_fn = move |data: &[i16], _: &cpal::InputCallbackInfo| {
-        let mut output_fell_behind = false;
-        for &sample in data {
-            if producer.push(sample).is_err() {
-                output_fell_behind = true;
-            }
-        }
-        if output_fell_behind {
-            log::error("output stream fell behind: try increasing latency".to_string());
-        }
-    };
-
-    let output_data_fn = move |data: &mut [i16], _: &cpal::OutputCallbackInfo| {
+    let output_data_fn = move |data: &mut [T], _: &cpal::OutputCallbackInfo| {
         let mut input_fell_behind = false;
         for sample in data {
             *sample = match consumer.pop() {
                 Some(s) => s,
                 None => {
                     input_fell_behind = true;
-                    0
+                    zero
                 }
             };
         }
@@ -53,10 +44,11 @@ pub fn echo(input_device: &cpal::Device, output_device: &cpal::Device) -> Result
 
     // Build streams.
     log::debug(format!(
-        "Attempting to build both streams with i16 samples and `{:?}`.",
+        "Attempting to build both streams with {:?} samples and `{:?}`.",
+        input_device.default_input_config()?.sample_format(),
         config
     ));
-    let input_stream = input_device.build_input_stream(&config, input_data_fn, err_fn)?;
+    let input_stream = input_device.build_input_stream(&config, move |data, _: &_| handle_input_data(data, tx.clone(), &mut producer), err_fn)?;
     let output_stream = output_device.build_output_stream(&config, output_data_fn, err_fn)?;
     log::debug("Successfully built streams.".to_string());
 
@@ -77,6 +69,25 @@ pub fn echo(input_device: &cpal::Device, output_device: &cpal::Device) -> Result
     Ok(())
 }
 
+fn handle_input_data<T>(data: &[T], sender: mpsc::Sender<Arc<Vec<f32>>>, producer: &mut Producer<T>) where T : cpal::Sample {
+    let mut output_fell_behind = false;
+        // convert to f32
+        let mut data_f32 = Vec::new();
+        for sample in data.iter() {
+            data_f32.push(sample.to_f32());
+        }
+        sender.send(Arc::new(data_f32)).unwrap();
+
+        for &sample in data {
+            if producer.push(sample).is_err() {
+                output_fell_behind = true;
+            }
+        }
+        if output_fell_behind {
+            log::error("output stream fell behind: try increasing latency".to_string());
+        }
+}
+
 fn err_fn(err: cpal::StreamError) {
-    log::error(format!("an error occurred on stream: {}", err));
+    log::error(format!("Error: {}", err));
 }

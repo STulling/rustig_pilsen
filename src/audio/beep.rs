@@ -1,6 +1,6 @@
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use crate::logging::log;
+use cpal::traits::{DeviceTrait, StreamTrait};
 
+#[allow(dead_code)]
 pub fn beep(device: &cpal::Device) -> Result<(), anyhow::Error> {
     let config = device.default_output_config().unwrap();
     println!("Default output config: {:?}", config);
@@ -12,6 +12,7 @@ pub fn beep(device: &cpal::Device) -> Result<(), anyhow::Error> {
     }
 }
 
+#[allow(dead_code)]
 fn run<T>(device: &cpal::Device, config: &cpal::StreamConfig) -> Result<(), anyhow::Error>
 where
     T: cpal::Sample,
@@ -42,6 +43,7 @@ where
     Ok(())
 }
 
+#[allow(dead_code)]
 fn write_data<T>(output: &mut [T], channels: usize, next_sample: &mut dyn FnMut() -> f32)
 where
     T: cpal::Sample,
