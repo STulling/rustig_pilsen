@@ -14,7 +14,7 @@ use logging::log;
 use info::audio_info;
 use audio::{feedback, utils};
 
-const BLOCK_SIZE: u32 = 1024;
+const BLOCK_SIZE: u32 = 480;
 
 // This function only gets compiled if the target OS is linux
 #[cfg(target_os = "linux")]
@@ -41,7 +41,7 @@ where T: cpal::Sample + Send + 'static + std::marker::Sync {
             log::error(format!("Error: {:?}", success.err().unwrap()));
         }
     });
-    process::run(rx);
+    //process::run(rx);
 
 }
 
