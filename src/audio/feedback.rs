@@ -10,6 +10,7 @@ where
     T: cpal::Sample + Send + 'static + std::marker::Sync,
 {   
     let mut config: cpal::StreamConfig = input_device.default_input_config()?.into();
+    log::debug(format!("Loaded initial streamconfig:\n  {:?}", config));
     //config.buffer_size = BufferSize::Fixed(BLOCK_SIZE * config.channels as u32 * 2);
     let latency_frames = (latency / 1_000.0) * config.sample_rate.0 as f32;
     let latency_samples = latency_frames as usize * config.channels as usize;
@@ -25,6 +26,7 @@ where
         // so this should never fail
         let _ = producer.push(zero);
     }
+    log::debug(format!("Built latencybuffer with `{:?}`ms latency", latency));
 
     let output_data_fn = move |data: &mut [T], _: &cpal::OutputCallbackInfo| {
         let mut input_fell_behind = false;

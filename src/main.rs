@@ -35,6 +35,7 @@ where T: cpal::Sample + Send + 'static + std::marker::Sync {
     let (tx, rx) = mpsc::channel::<Arc<Vec<f32>>>();
     log::info("Playing Feedback".to_string());
     thread::spawn(move || {
+        log::debug("Opened Audio Thread".to_string());
         let success = feedback::run::<T>(&input_device, &output_device, 100.0, tx);
         log::error("Stopped playing Feedback".to_string());
         if success.is_err() {
