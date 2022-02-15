@@ -12,8 +12,6 @@ use processing::process;
 mod audio;
 use logging::log;
 use info::audio_info;
-#[cfg(target_os = "linux")]
-use audio::utils;
 use audio::{feedback, utils};
 
 const BLOCK_SIZE: u32 = 1024;
