@@ -1,5 +1,7 @@
 use cpal::traits::{DeviceTrait, HostTrait};
 
+use crate::logging::log;
+
 #[cfg(target_os = "linux")]
 pub fn get_device(name: &str) -> cpal::Device {
     let host = cpal::default_host();
@@ -9,6 +11,7 @@ pub fn get_device(name: &str) -> cpal::Device {
             return device;
         }
     }
+    log::error(format!("Could not find device: {}", name));
     let device = host.default_input_device().unwrap();
     return device;
 }

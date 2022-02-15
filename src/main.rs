@@ -18,7 +18,7 @@ const BLOCK_SIZE: u32 = 1024;
 
 // This function only gets compiled if the target OS is linux
 #[cfg(target_os = "linux")]
-fn init_devices(host: &cpal::Host) -> (cpal::Device, cpal::Device) {
+fn init_devices(_host: &cpal::Host) -> (cpal::Device, cpal::Device) {
     return (utils::get_device("hw:CARD=Device,DEV=0"), utils::get_device("hw:CARD=Device,DEV=0"));
 }
 
