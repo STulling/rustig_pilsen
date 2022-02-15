@@ -49,7 +49,11 @@ fn main() {
     audio_info::print_info();
     let host = cpal::default_host();
     let (input_device, output_device) = init_devices(&host);
-    log::warn(format!("Using Devices: \n  [IN] {}\n  [OUT] {}", input_device.name().unwrap(), output_device.name().unwrap()));
+    log::warn(format!("Using Devices: \n  [IN] {}\n    {:?}\n  [OUT] {}\n    {:?}", 
+        input_device.name().unwrap(), 
+        input_device.default_input_config().unwrap(),
+        output_device.name().unwrap(),
+        output_device.default_output_config().unwrap()));
 
     let format = utils::get_format(&input_device).unwrap();
     log::warn(format!("Using Format: {:?}", format));
