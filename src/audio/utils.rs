@@ -12,7 +12,7 @@ pub fn get_device(name: &str) -> cpal::Device {
         }
     }
     log::error(format!("Could not find device: {}", name));
-    let device = host.default_input_device().unwrap();
+    let device = host.default_output_device().unwrap();
     return device;
 }
 
