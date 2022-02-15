@@ -26,7 +26,7 @@ where
         // so this should never fail
         let _ = producer.push(zero);
     }
-    log::debug(format!("Built latencybuffer with `{:?}`ms latency", latency));
+    log::debug(format!("Built latencybuffer with `{:?}` ms latency", latency));
 
     let output_data_fn = move |data: &mut [T], _: &cpal::OutputCallbackInfo| {
         let mut input_fell_behind = false;

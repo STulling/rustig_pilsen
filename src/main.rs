@@ -1,6 +1,7 @@
 extern crate cpal;
 extern crate lazy_static;
 
+use core::time;
 use std::{sync::{mpsc, Arc}, thread};
 
 use cpal::traits::{DeviceTrait, HostTrait};
@@ -42,6 +43,7 @@ where T: cpal::Sample + Send + 'static + std::marker::Sync {
             log::error(format!("Error: {:?}", success.err().unwrap()));
         }
     });
+    std::thread::sleep(time::Duration::from_millis(1000 * 10));
     //process::run(rx);
 
 }
