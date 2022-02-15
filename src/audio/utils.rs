@@ -5,12 +5,7 @@ use crate::logging::log;
 #[cfg(target_os = "linux")]
 pub fn get_device(name: &str) -> cpal::Device {
     let host = cpal::default_host();
-    let mut devices = host.devices().unwrap();
-    log::debug("Available Devices:".to_string());
-    for device in devices {
-        log::debug(format!("  {:?}", device.name().unwrap()));
-    }
-    devices = host.devices().unwrap();
+    let devices = host.devices().unwrap();
     for device in devices {
         if device.name().unwrap() == name {
             return device;
