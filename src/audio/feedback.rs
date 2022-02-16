@@ -73,21 +73,22 @@ where
 
 fn handle_input_data<T>(data: &[T], sender: mpsc::Sender<Arc<Vec<f32>>>, producer: &mut Producer<T>) where T : cpal::Sample {
     let mut output_fell_behind = false;
-        // convert to f32
-        let mut data_f32 = Vec::new();
-        for sample in data.iter() {
-            data_f32.push(sample.to_f32());
-        }
-        sender.send(Arc::new(data_f32)).unwrap();
+    log::debug(format!("Size of data:\n  {:?}", data.len()));
+    // convert to f32
+    let mut data_f32 = Vec::new();
+    for sample in data.iter() {
+        data_f32.push(sample.to_f32());
+    }
+    sender.send(Arc::new(data_f32)).unwrap();
 
-        for &sample in data {
-            if producer.push(sample).is_err() {
-                output_fell_behind = true;
-            }
+    for &sample in data {
+        if producer.push(sample).is_err() {
+            output_fell_behind = true;
         }
-        if output_fell_behind {
-            log::error("output stream fell behind: try increasing latency".to_string());
-        }
+    }
+    if output_fell_behind {
+        log::error("output stream fell behind: try increasing latency".to_string());
+    }
 }
 
 fn err_fn(err: cpal::StreamError) {
