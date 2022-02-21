@@ -43,8 +43,7 @@ where T: cpal::Sample + Send + 'static + std::marker::Sync {
             log::error(format!("Error: {:?}", success.err().unwrap()));
         }
     });
-    std::thread::sleep(time::Duration::from_millis(1000 * 10));
-    //process::run(rx);
+    process::run(rx);
 
 }
 

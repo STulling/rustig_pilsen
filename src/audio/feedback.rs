@@ -73,7 +73,6 @@ where
 
 fn handle_input_data<T>(data: &[T], sender: mpsc::Sender<Arc<Vec<f32>>>, producer: &mut Producer<T>) where T : cpal::Sample {
     let mut output_fell_behind = false;
-    log::debug(format!("Size of data:\n  {:?}", data.len()));
     // convert to f32
     let mut data_f32 = Vec::new();
     for sample in data.iter() {
