@@ -11,7 +11,7 @@ pub fn calc_rms(data: &Arc<Vec<f32>>) -> f32 {
 }
 
 pub fn calc_fft(fft: &mut FftPlanner<f32>, data: &Arc<Vec<f32>>) -> usize {
-    let plan = fft.plan_fft_forward(crate::BLOCK_SIZE as usize);
+    let plan = fft.plan_fft_forward(data.len());
     let mut complex_buffer = data
         .iter()
         .map(|&x| Complex { re: x, im: 0.0 })
