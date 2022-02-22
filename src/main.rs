@@ -1,5 +1,4 @@
 extern crate cpal;
-extern crate lazy_static;
 
 use core::time;
 use std::{sync::{mpsc, Arc}, thread};
@@ -44,7 +43,6 @@ where T: cpal::Sample + Send + 'static + std::marker::Sync {
         }
     });
     process::run(rx);
-
 }
 
 fn main() {

@@ -48,7 +48,6 @@ dependencies = [
  "anyhow",
  "colored",
  "cpal",
- "lazy_static",
  "ringbuf",
  "rustfft",
 ]
