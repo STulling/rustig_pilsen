@@ -8,9 +8,8 @@ use rustfft::{FftPlanner};
 
 pub fn run(rx: mpsc::Receiver<Arc<Vec<f32>>>) -> Result<(), anyhow::Error> {
     if cfg!(target_os="linux") {
-    Command::new("sh")
-        .arg("-c")
-        .arg("sudo pkill -f video")
+    Command::new("sudo")
+        .arg("pkill -f video")
         .spawn()?;
     } else {
         Command::new("taskkill")
