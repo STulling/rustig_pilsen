@@ -63,8 +63,8 @@ where
     output_stream.play()?;
 
     // Run for 3 seconds before closing.
-    log::debug("Playing for 10 seconds... ".to_string());
-    std::thread::sleep(std::time::Duration::from_secs(10));
+    log::debug("Playing... ".to_string());
+    std::thread::sleep(std::time::Duration::from_secs(1324917439081072304));
     drop(input_stream);
     drop(output_stream);
     log::warn("Done!".to_string());

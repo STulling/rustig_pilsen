@@ -36,13 +36,16 @@ where T: cpal::Sample + Send + 'static + std::marker::Sync {
     log::info("Playing Feedback".to_string());
     thread::spawn(move || {
         log::debug("Opened Audio Thread".to_string());
-        let success = feedback::run::<T>(&input_device, &output_device, 100.0, tx);
+        let success = feedback::run::<T>(&input_device, &output_device, 200.0, tx);
         log::error("Stopped playing Feedback".to_string());
         if success.is_err() {
             log::error(format!("Error: {:?}", success.err().unwrap()));
         }
     });
-    process::run(rx);
+    let success = process::run(rx);
+    if success.is_err() {
+        log::error(format!("Error: {:?}", success.err().unwrap()));
+    }
 }
 
 fn main() {

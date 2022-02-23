@@ -10,7 +10,7 @@ pub fn calc_rms(data: &Arc<Vec<f32>>) -> f32 {
     sum.sqrt()
 }
 
-pub fn calc_fft(fft: &mut FftPlanner<f32>, data: &Arc<Vec<f32>>) -> usize {
+pub fn calc_fft(fft: &mut FftPlanner<f32>, data: &Arc<Vec<f32>>) -> Vec<f32> {
     let plan = fft.plan_fft_forward(data.len());
     let mut complex_buffer = data
         .iter()
@@ -24,17 +24,5 @@ pub fn calc_fft(fft: &mut FftPlanner<f32>, data: &Arc<Vec<f32>>) -> usize {
     // remove mirroring
     buffer = buffer[0..(complex_buffer.len() as f32 * 0.5) as usize].to_vec();
 
-    argmax(&buffer)
-}
-
-pub fn argmax(data: &Vec<f32>) -> usize {
-    let mut max = 0.0;
-    let mut max_index = 0;
-    for (i, &x) in data.iter().enumerate() {
-        if x > max {
-            max = x;
-            max_index = i;
-        }
-    }
-    max_index
+    buffer
 }

@@ -1,25 +1,44 @@
 use std::{sync::{mpsc, Arc}, process::{Command, Stdio}, io::Write};
 
+use crate::logging::log;
+
 use super::math::calc_rms;
 use super::math::calc_fft;
 use rustfft::{FftPlanner};
 
 pub fn run(rx: mpsc::Receiver<Arc<Vec<f32>>>) -> Result<(), anyhow::Error> {
-    let mut fft = FftPlanner::<f32>::new(); 
-    let mut child = Command::new("sudo")
+    if cfg!(target_os="linux") {
+    Command::new("sh")
+        .arg("-c")
+        .arg("sudo pkill -f video")
+        .spawn()?;
+    } else {
+        Command::new("taskkill")
+            .arg("/IM")
+            .arg("video.exe")
+            .spawn()?;
+    }
+    let mut child = if cfg!(target_os = "linux"){
+        Command::new("sudo")
         .arg("../Biermuur3/video/video")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .spawn()?;
+        .spawn()?
+    } else {
+        Command::new("../Biermuur3/video/video.exe")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()?
+    };
 
+    let mut fft = FftPlanner::<f32>::new();
     let child_stdin = child.stdin.as_mut().unwrap();
-    let mut fftRes: f32 = 0.0;
-    let mut rmsRes: f32 = 0.0;
 
     while let Ok(data) = rx.recv() {
-        fftRes = calc_fft(&mut fft, &data) as f32;
-        rmsRes = calc_rms(&data);
-        child_stdin.write_all(format!("{}, {};", rmsRes, fftRes).as_bytes())?;
+        let fft_res = 0.0;//calc_fft(&mut fft, &data);
+        let rms_res = calc_rms(&data);
+        child_stdin.write_all(format!("{}, {};", rms_res, fft_res).as_bytes())?;
+        log::debug(format!("{}, {}", rms_res, fft_res));
     }
 
     Ok(())
