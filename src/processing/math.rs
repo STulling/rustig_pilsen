@@ -22,7 +22,7 @@ pub fn calc_fft(fft: &mut FftPlanner<f32>, data: &Arc<Vec<f32>>) -> f32 {
     let mut buffer: Vec<f32> = complex_buffer.iter().map(|x| x.norm() as f32).collect();
 
     // remove mirroring
-    buffer = buffer[0..(complex_buffer.len() as f32 * 0.5) as usize].to_vec();
+    buffer = buffer[0..(complex_buffer.len() as f32 * 0.25) as usize].to_vec();
 
     calc_center(&buffer)
 }
