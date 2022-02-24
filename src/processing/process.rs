@@ -34,7 +34,7 @@ pub fn run(rx: mpsc::Receiver<Arc<Vec<f32>>>) -> Result<(), anyhow::Error> {
     let child_stdin = child.stdin.as_mut().unwrap();
 
     while let Ok(data) = rx.recv() {
-        let fft_res = 0.0;//calc_fft(&mut fft, &data);
+        let fft_res = calc_fft(&mut fft, &data);
         let rms_res = calc_rms(&data);
         child_stdin.write_all(format!("{}, {};", rms_res, fft_res).as_bytes())?;
     }
